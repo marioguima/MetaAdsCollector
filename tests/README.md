@@ -1,5 +1,48 @@
 # CI regression cases
 
+## Live transport reruns
+
+All actual Meta invocations (`scripts/check_distribution.py --live ...` and
+`mcp/check_distribution.py --live`) run pytest with `--reruns 2 --reruns-delay 15`
+and an `--only-rerun` allowlist of transport failures: curl timeouts, stalled or
+refused upstream tunnels (`CONNECT tunnel failed, response 590`), connection
+resets, DNS failures, Meta rate limits and bootstrap authentication errors caused
+by them. Every other failure (wrong field values, missing ads, library errors)
+fails on the first attempt. `test_live_invocations_retry_only_transport_failures`
+keeps the two scripts' allowlists identical and checks representative messages.
+The live test gateways also retry one stalled upstream attempt within a single
+client request (`tests/meta_forward_proxy.py`).
+
+## SOCKS DNS modes and private CI sessions
+
+`live-proxy` installs the built wheel outside the checkout and runs all six
+SOCKS regression cases before the slower full-suite result is available. Both
+`socks5://` (client DNS) and `socks5h://` (proxy DNS) remain real Meta tests.
+Related parameter cases share a derived residential session; each test family
+has its own session so earlier full-suite traffic does not determine its exit.
+Explicit user-selected proxy sessions and other providers are preserved.
+
+The JUnit `meta_transport` property records actual Meta destination addresses,
+HTTP status, numeric GraphQL error codes, and whether an LSD token is present.
+It excludes response bodies, error messages, token values, cookies, request
+payloads, URL query strings, and proxy credentials. Privacy unit contracts use
+an ephemeral canary; integration cases collect actual Meta ads.
+
+Run the six cases with your private proxy configured:
+
+```bash
+python -m pytest tests/test_live_proxy_transport.py --run-integration -m integration -k "different_python_dns_view or authenticated_socks_proxy" -o junit_family=legacy
+```
+
+Or verify the distribution built in `dist/`:
+
+```bash
+python scripts/check_distribution.py --live --proxy-diagnostics
+```
+
+All diagnostics failures block CI. The full live suite still runs the same
+cases, and MCP live tests still require the core live suite to pass.
+
 ## Meta media tunnel failures
 
 These cases reproduce the two failures in tag CI run
