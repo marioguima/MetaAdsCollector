@@ -14,21 +14,22 @@ import zipfile
 from pathlib import Path
 
 # Keep in sync with scripts/check_distribution.py (asserted by tests/test_ci_configuration.py).
+# Matched case-insensitively against "ExceptionType: message" along the cause chain.
 LIVE_TRANSPORT_ERRORS = (
-    r"Timeout",
-    r"timed out",
-    r"CurlError",
-    r"CONNECT tunnel",
+    r"(?i)timeout",
+    r"(?i)timed out",
+    r"(?i)curlerror",
+    r"(?i)connect tunnel",
     r"\b590\b",
-    r"RateLimitError",
-    r"rate limit",
-    r"AuthenticationError",
-    r"SessionExpiredError",
-    r"Connection error",
-    r"ConnectionError",
-    r"ConnectionReset",
-    r"RemoteDisconnected",
-    r"Could not resolve",
+    r"(?i)ratelimiterror",
+    r"(?i)rate limit",
+    r"(?i)authenticationerror",
+    r"(?i)sessionexpirederror",
+    r"(?i)connection error",
+    r"(?i)connectionerror",
+    r"(?i)connectionreset",
+    r"(?i)remotedisconnected",
+    r"(?i)could not resolve",
 )
 LIVE_RERUNS = 2
 LIVE_RERUN_DELAY_SECONDS = 15

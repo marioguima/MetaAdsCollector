@@ -95,6 +95,8 @@ def test_live_invocations_retry_only_transport_failures():
     assert retried("AssertionError: Connection error: Failed to perform, curl: (7) CONNECT tunnel failed, response 590")
     assert retried("AuthenticationError: Failed to initialize async client: Failed to perform, curl: (28)")
     assert retried("RateLimitError: Max retries exceeded due to rate limiting")
+    assert retried("AssertionError: Rate limit exceeded")  # Meta's message as surfaced by live assertions
+    assert retried("CurlError: Failed to perform, curl: (35) Recv failure: Connection reset by peer")
     # Failures about Meta's data or the library's behaviour are not.
     assert not retried("AssertionError: assert 2 == 3")
     assert not retried("AssertionError: Actual Meta detail field eu_total_reach was not enriched")

@@ -4,7 +4,7 @@
 
 All actual Meta invocations (`scripts/check_distribution.py --live ...` and
 `mcp/check_distribution.py --live`) run pytest with `--reruns 2 --reruns-delay 15`
-and an `--only-rerun` allowlist of transport failures: curl timeouts, stalled or
+and a case-insensitive `--only-rerun` allowlist of transport failures: curl timeouts, stalled or
 refused upstream tunnels (`CONNECT tunnel failed, response 590`), connection
 resets, DNS failures, Meta rate limits and bootstrap authentication errors caused
 by them. Every other failure (wrong field values, missing ads, library errors)
