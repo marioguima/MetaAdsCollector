@@ -965,7 +965,6 @@ class MetaAdsClient:
         self,
         query: str = "",
         country: str = "US",
-        language: Optional[str] = None,
         ad_type: str = "ALL",
         active_status: str = "ACTIVE",
         media_type: str = "ALL",
@@ -983,8 +982,7 @@ class MetaAdsClient:
 
         Args:
             query: Search query string
-            country: Country code (e.g., "US", "EG"), or ALL
-            language: ISO 639-1 code (e.g. es, pt), or None for all languages
+            country: Country code (e.g., "US", "EG")
             ad_type: Type of ads - ALL, POLITICAL_AND_ISSUE_ADS, HOUSING_ADS, etc.
             active_status: ACTIVE, INACTIVE, or ALL
             media_type: ALL, IMAGE, VIDEO, MEME, NONE
@@ -1000,13 +998,6 @@ class MetaAdsClient:
         Returns:
             Tuple of (response data dict, next cursor or None)
         """
-        if language is not None and (
-            not isinstance(language, str) or len(language) not in (2, 3)
-            or not language.isascii() or not language.isalpha()
-        ):
-            raise ValueError("language must be an ISO language code or None")
-        if country == "ALL" and language is not None:
-            raise ValueError("language is only available when a country is selected")
         if not self._initialized:
             self.initialize()
 
@@ -1027,7 +1018,7 @@ class MetaAdsClient:
             "adType": ad_type,
             "bylines": [],
             "collationToken": collation_token,
-            "contentLanguages": [language.lower()] if language else [],
+            "contentLanguages": [],
             "countries": [country],
             "excludedIDs": [],
             "first": first,
