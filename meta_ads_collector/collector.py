@@ -304,7 +304,7 @@ class MetaAdsCollector:
             raise InvalidParameterError("search_type", search_type, VALID_SEARCH_TYPES)
         if sort_by not in VALID_SORT_MODES:
             raise InvalidParameterError("sort_by", sort_by, VALID_SORT_MODES)
-        if not country or len(country) != 2 or not country.isalpha():
+        if not country or (country != "ALL" and len(country) != 2) or not country.isalpha():
             raise InvalidParameterError(
                 "country", country, "a 2-letter ISO 3166-1 alpha-2 code (e.g. 'US', 'EG')"
             )
@@ -313,6 +313,7 @@ class MetaAdsCollector:
         self,
         query: str = "",
         country: str = "US",
+        language: Optional[str] = None,
         ad_type: str = AD_TYPE_ALL,
         status: str = STATUS_ACTIVE,
         search_type: str = SEARCH_KEYWORD,
@@ -329,7 +330,8 @@ class MetaAdsCollector:
 
         Args:
             query: Search query string
-            country: Country code (e.g., "US", "EG", "GB")
+            country: Country code (e.g., "US", "EG", "GB") or ALL
+            language: ISO 639-1 language code or None for all languages
             ad_type: Type of ads to search for
             status: Active status filter
             search_type: Type of search (keyword, exact, page)
@@ -347,6 +349,13 @@ class MetaAdsCollector:
         import uuid
 
         country = country.upper()
+        if country == "ALL" and language is not None:
+            raise InvalidParameterError("language", language, "None for country=ALL")
+        if language is not None and (
+            not isinstance(language, str) or len(language) not in (2,3)
+            or not language.isascii() or not language.isalpha()
+        ):
+            raise InvalidParameterError("language", language, "ISO 639 language code")
         self._validate_params(ad_type, status, search_type, sort_by, country)
         if max_results is not None and (
             isinstance(max_results, bool)
@@ -404,6 +413,7 @@ class MetaAdsCollector:
                             response, next_cursor = self.client.search_ads(
                                 query=query,
                                 country=country,
+                                language=language,
                                 ad_type=ad_type,
                                 active_status=status,
                                 search_type=search_type,
